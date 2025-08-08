@@ -1,0 +1,44 @@
+# OS/macOS
+.DS_Store
+
+# Python bytecode and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Caches and logs
+.cache/
+.mypy_cache/
+.pytest_cache/
+logs/
+*.log
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Project data cache (large, derived files)
+cached_data/
+
+# Binary data formats commonly generated during experiments
+*.pkl
+
+# Secrets
+.env
+.env.*
+
