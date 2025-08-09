@@ -1,36 +1,30 @@
 import streamlit as st
 import pandas as pd
+from core.backtester import walk_forward
 
 st.title("Momentum Strategy Dashboard")
 st.write("Select parameters and see portfolio returns")
 
+with st.sidebar:
+  st.header("Parameters")
 
-# Period
+  #Period
+  start_invest = st.date_input("Starting date")
+  end_invest = st.date_input("Ending date")
 
-start_date = st.sidebar.date_input("Starting date")
-end_date = st.sidebar.date_input("Ending date")
+  # Lookback and skip input
+  lookback_months= st.number_input("Lookback months", min_value=1 , max_value=24, value=6)
+  skip_months = st.number_input("Skip Months", min_value=0 , max_value=6, value=1)
+  start_capital = st.number_input("Start Capital", min_value=100 , value=100 )
+  run = st.button("Run strategy")
+  reset = st.button("Reset")
 
-
-
-# Lookback and skip input
-lookback= st.sidebar.number_input("Lookback months", min_value=1 , max_value=24, value=6)
-skip_months = st.sidebar.number_input("Skip Months", min_value=0 , max_value=6, value=1)
-
-
-def run_strategy():
-  data ={
-    "Ticker":  ["GOOG","MSFT","AAPL"],
-    "return": [5.6, 1.4,5.7]         
-  }
-  return data
-
-# Button to run strategy
-if st.sidebar.button("Run Strategy"):
-  st.success("Running")
-  results = run_strategy()
+# Run strategy
+if run:
+  trade_records = walk_forward(start_invest, end_invest, lookback_months, skip_months, start_capital)
   st.subheader("Results")
-  st.dataframe(results)
+  st.dataframe(trade_records)
 
 # Reset button
-if st.sidebar.button("Reset"):
+if reset:
   st.session_state.clear()
