@@ -11,7 +11,7 @@ with st.sidebar:
   #Period
   start_invest = st.date_input("Starting date")
   end_invest = st.date_input("Ending date")
-
+  
   # Lookback and skip input
   lookback_months= st.number_input("Lookback months", min_value=1 , max_value=24, value=6)
   skip_months = st.number_input("Skip Months", min_value=0 , max_value=6, value=1)
@@ -21,10 +21,13 @@ with st.sidebar:
 
 # Run strategy
 if run:
-  trade_records = walk_forward(start_invest, end_invest, lookback_months, skip_months, start_capital)
+  trade_records, capital, ben_capital = walk_forward(start_invest, end_invest, lookback_months, skip_months, start_capital)
   st.subheader("Results")
+  st.metric(label="Strategy Capital", value=capital)
+  st.metric(label="Benchmark Capital", value=ben_capital)
   st.dataframe(trade_records)
 
 # Reset button
 if reset:
   st.session_state.clear()
+

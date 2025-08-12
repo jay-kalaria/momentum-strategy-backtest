@@ -1,7 +1,7 @@
 import pandas as pd
 from core.helper import on_or_before, on_or_after, cal_start_end
 
-
+ben_data= pd.read_pickle('cached_data/benchmark_data.pkl')
 
 def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_capital):
 
@@ -13,6 +13,7 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
   top_k =2 
   trade_records= []
   capital=start_capital
+  ben_capital = start_capital
 
   while buy_date<=end_invest: 
 
@@ -53,6 +54,12 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
 
     capital *= (1+portfolio_return)
 
+    # ben capital
+    ben_capital_before = ben_capital
+    ben_return = (ben_data.loc[sell_date,"S&P 500"] - ben_data.loc[invest_date,"S&P 500"])/ben_data.loc[invest_date,"S&P 500"]
+    ben_capital *= 1+ ben_return
+    #ben_returns.append(round(ben_capital,2))  
+
     # Summary return
     trade_records.append({
         "invest_date": "SUMMARY" ,
@@ -66,9 +73,13 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
         "sell_price": "SUMMARY", 
         "return": portfolio_return ,
         "capital_before":round(capital_before,2),
-        "capital_after": round(capital,2)
+        "capital_after": round(capital,2),
+        "Ben Capital before": round(ben_capital_before,2),
+        "ben_capital_after": round(ben_capital,2)
       })
 
     buy_date = (buy_date + pd.DateOffset(months=1)).replace(day=1)
 
-  return trade_records
+    
+
+  return trade_records, capital, ben_capital
