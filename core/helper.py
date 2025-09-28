@@ -14,28 +14,30 @@ def cal_start_end(anchor, skip_months, lookback):
   return start_date, end_date
 
 # the prev available date
-def on_or_before(date, col=None):
+def on_or_before_date(date, col=None):
+  
   if date in df.index:
     val = df.loc[date, col] if col is not None else df.loc[date]
     prev_date =date
 
   else:  
-    pos = df.index.searchsorted(date, side='left')-1
+    pos = df.index.searchsorted(date, side='right')-1
     if pos<0:
       raise ValueError("No available date on/before the given date")
     prev_date = df.index[pos]
     val= df.loc[prev_date, col] if col is not None else df.loc[prev_date]
 
+
   return val, prev_date
 
-# the next available date
-def on_or_after(date , col=None):
-  
-  pos= df.index.searchsorted(date, side='left')
-  if pos<0:
-      raise ValueError("No available date on/before the given date")
-  next_date = df.index[pos]
 
-  val= df.loc[next_date,col] if col is not None else df.loc[next_date]
 
-  return val, next_date
+def get_stock_price(date, ticker):
+  return df.loc[date,ticker]
+
+
+
+
+
+
+
