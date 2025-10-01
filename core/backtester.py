@@ -15,6 +15,8 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
   ben_capital = start_capital
   str_mon_returns = [] 
   ben_mon_returns= [] 
+  portfolio_value = []
+  benchmark_value =[] 
 
   while start_invest<=end_invest: 
 
@@ -82,13 +84,17 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
         "return": portfolio_return ,
         "capital_before":round(capital_before,2),
         "capital_after": round(capital,2),
-        "Ben Capital before": round(ben_capital_before,2),
+        "ben Capital before": round(ben_capital_before,2),
         "ben_capital_after": round(ben_capital,2)
       })
+
+    benchmark_value.append(ben_capital)
+    portfolio_value.append(capital)
+
 
     print(start_invest)
     start_invest = (buy_date + pd.DateOffset(months=1)).replace(day=1)
 
     
 
-  return trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns
+  return trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns, portfolio_value, benchmark_value

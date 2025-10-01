@@ -1,4 +1,3 @@
-from cProfile import label
 from core.helper import calc_cagr, calc_sharpe
 import streamlit as st
 import pandas as pd
@@ -6,7 +5,7 @@ from core.backtester import walk_forward
 import datetime
 
 st.title("Momentum Strategy Backtester with")
-st.write("Select parameters and see portfolio returns")
+
 NAME_TO_TICKER = {
     "ApplefsfsdfdfsfsdfApplefsfsdfdfsfsdfApplefsfsdfdfsfsdfApplefsfsdfdfsfsdfApplefsfsdfdfsfsdfApplefsfsdfdfsfsdfApplefsfsdfdfsfsdfApplefsfsdfdfsfsdfApplefsfsdfdfsfsdfApplefsfsdfdfsfsdf": "AAPL",
     "Microsoft": "MSFT",
@@ -20,11 +19,12 @@ NAME_TO_TICKER = {
 
 names = NAME_TO_TICKER.keys()
 
+#st.write("Select parameters and see portfolio returns")
 #st.multiselect("Select companies", options=names)
-with st.container(border=True):
-  st.write("S&P 500 stocks")
-  st.button("Select this")
-
+# with st.container(border=True):
+#   st.write("S&P 500 stocks")
+#   st.button("Select this")
+st.write("Select parameters and see portfolio returns")
 with st.sidebar:
   st.header("Parameters")
 
@@ -54,19 +54,27 @@ if reset:
 if run:
   
   with st.spinner("Running backtest...This may take a few moments"):
-    trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns = walk_forward(start_invest, end_invest, lookback_months, skip_months, start_capital)
+    trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns, portfolio_value, benchmark_value  = walk_forward(start_invest, end_invest, lookback_months, skip_months, start_capital)
 
     sharpe  = calc_sharpe(str_mon_returns, 0.04)
     cagr = calc_cagr(start_capital, capital, str_mon_returns, start_invest, end_invest)
 
 
 
+
   total_returns = (((capital-start_capital)/start_capital)*100).round(2)
 
   
-  st.success("Backtest completed!"
-  )
+ # st.success("Backtest completed!")
+
   tab1,tab2,tab3 = st.tabs(["Result and Comparsion","Monthly Performace","Detailed Analysis"])
+
+  graph_data= pd.DataFrame(
+    {
+      "Momentum Strategy": portfolio_value, 
+      "Benchmark": benchmark_value
+    }
+  )
 
 
   with tab2:
@@ -83,6 +91,8 @@ if run:
     # st.write(f"**Returns**: {total_returns:.2f}")
     # st.write(f"**CAGR**: {cagr:.2f}")
     # st.write(f"**Sharpe**: {sharpe:.2f}")
+
+    st.line_chart(graph_data)
 
     # Performance Panel
     st.subheader("Performance Panel")
