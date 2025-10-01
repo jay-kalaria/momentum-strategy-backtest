@@ -1,4 +1,8 @@
+
+from tracemalloc import start
 import pandas as pd
+import numpy as np
+from datetime import date
 
 
 df=pd.read_pickle("cached_data/all_data.pkl")
@@ -31,10 +35,57 @@ def on_or_before_date(date, col=None):
   return val, prev_date
 
 
-
+# Get Stock Price
 def get_stock_price(date, ticker):
   return df.loc[date,ticker]
 
+# Calculate CAGR
+def calc_cagr(start_cap, end_cap, returns, start_date, end_date):
+
+  years= (end_date-start_date).days/265.25
+
+  if years<=0 or start_cap<=0 :
+    return np.nan
+
+  return (end_cap/start_cap)**(1/years)-1
+  # Log errors as well
+
+  # if not start_cap or not end_cap or len(returns)==0: 
+  #   return np.nan
+
+  # r = pd.Series(returns).dropna()
+  # n_len = len(r)
+  # growth = (1+r).prod() # (1+r) same as the ratio end/start
+
+  # print("============")
+  # print(end_cap/start_cap)
+  # print(growth)
+  # print("============")
+
+  # #second_way = (end_cap/start_cap)**(12/n_len)-1
+
+  # return growth**(12/n_len)-1
+
+
+
+#Calculate Sharpe
+def calc_sharpe(returns, annual_rf):
+
+  r = pd.Series(returns).dropna()
+  if len(r)<2:
+    return np.nan
+
+  rf_monthly = (1+annual_rf)**(1/12)-1
+
+  excess_returns = r - rf_monthly  
+  mean_excess = excess_returns.mean()
+  std_excess = excess_returns.std(ddof=1)
+
+  if std_excess==0 or np.isnan(std_excess):
+    return np.nan
+
+  sharpe = (mean_excess/std_excess)* np.sqrt(12)
+  return sharpe
 
 
 

@@ -13,6 +13,8 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
   trade_records= []
   capital=start_capital
   ben_capital = start_capital
+  str_mon_returns = [] 
+  ben_mon_returns= [] 
 
   while start_invest<=end_invest: 
 
@@ -62,6 +64,10 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
     ben_capital *= 1+ ben_return
     #ben_returns.append(round(ben_capital,2))  
 
+    # Append monthly returns
+    str_mon_returns.append(portfolio_return)
+    ben_mon_returns.append(ben_return)
+
     # Summary return
     trade_records.append({
         "invest_date": "SUMMARY" ,
@@ -85,4 +91,4 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
 
     
 
-  return trade_records, capital, ben_capital
+  return trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns
