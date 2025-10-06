@@ -17,11 +17,21 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
   ben_mon_returns= [] 
   portfolio_value = []
   benchmark_value =[] 
+  peak_capital = start_capital
+  max_drawdown = 0
+  peak_capital_ben = start_capital
+  max_drawdown_ben =0 
+  total_trades=0
+  wins= 0
 
   while start_invest<=end_invest: 
 
     # Buy at the end of the month
     _, buy_date = on_or_before_date((start_invest + pd.offsets.MonthEnd(0)))
+
+    if buy_date>end_invest:
+      break
+
     # Sell at the end of the next month
     _, sell_date = on_or_before_date((buy_date + pd.offsets.MonthBegin(1) + pd.offsets.MonthEnd(0)))
     start_period, end_period = cal_start_end(buy_date, skip_months, lookback_months)
@@ -43,6 +53,11 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
       sell_price = get_stock_price(sell_date, ticker)
       r = (sell_price-buy_price)/buy_price
       portfolio_return += w_each*r
+
+      # Count trades and wins
+      total_trades += 1
+      if r >= 0:
+        wins += 1
 
       trade_records.append({ 
         "buy_date": buy_date.date(),
@@ -91,10 +106,24 @@ def walk_forward(start_invest, end_invest, lookback_months, skip_months, start_c
     benchmark_value.append(ben_capital)
     portfolio_value.append(capital)
 
+    # Max drawdown
+    if capital > peak_capital:
+      peak_capital = capital
+    
+    # Calculate current drawdown as percentage from peak
+    current_drawdown = (peak_capital - capital) / peak_capital
+    max_drawdown = max(max_drawdown, current_drawdown)
 
-    print(start_invest)
+    # Drawdown benchmark
+    if ben_capital>peak_capital_ben:
+      peak_capital_ben=ben_capital
+    
+    current_dd_ben = (peak_capital_ben-capital)/peak_capital_ben
+    max_drawdown_ben  = max(max_drawdown_ben, current_dd_ben)
+
+    #Date update for loop
     start_invest = (buy_date + pd.DateOffset(months=1)).replace(day=1)
 
-    
+  return trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns, portfolio_value, benchmark_value, max_drawdown, max_drawdown_ben, total_trades, wins
 
-  return trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns, portfolio_value, benchmark_value
+

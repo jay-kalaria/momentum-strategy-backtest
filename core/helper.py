@@ -41,13 +41,16 @@ def get_stock_price(date, ticker):
 
 # Calculate CAGR
 def calc_cagr(start_cap, end_cap, returns, start_date, end_date):
-
-  years= (end_date-start_date).days/265.25
-
-  if years<=0 or start_cap<=0 :
+ 
+  years = (end_date - start_date).days / 365.25
+  
+  if years <= 0 or start_cap <= 0:
     return np.nan
 
-  return (end_cap/start_cap)**(1/years)-1
+  # Calculate CAGR
+  cagr = (end_cap / start_cap)**(1/years) - 1
+  
+  return cagr
   # Log errors as well
 
   # if not start_cap or not end_cap or len(returns)==0: 
@@ -68,27 +71,75 @@ def calc_cagr(start_cap, end_cap, returns, start_date, end_date):
 
 
 
-#Calculate Sharpe
+# Calculate Sharpe Ratio
 def calc_sharpe(returns, annual_rf):
-
   r = pd.Series(returns).dropna()
-  if len(r)<2:
+  
+  if len(r) < 2:
     return np.nan
 
-  rf_monthly = (1+annual_rf)**(1/12)-1
+  # Convert annual risk-free rate to monthly
+  rf_monthly = (1 + annual_rf)**(1/12) - 1
 
-  excess_returns = r - rf_monthly  
+  # Calculate excess returns
+  excess_returns = r - rf_monthly
+  
+  # Calculate mean and standard deviation of excess returns
   mean_excess = excess_returns.mean()
   std_excess = excess_returns.std(ddof=1)
 
-  if std_excess==0 or np.isnan(std_excess):
+  if std_excess == 0 or np.isnan(std_excess):
     return np.nan
 
-  sharpe = (mean_excess/std_excess)* np.sqrt(12)
+  # Calculate Sharpe ratio
+  sharpe = (mean_excess / std_excess) * np.sqrt(12)
+  
   return sharpe
 
 
+def calc_volatility(returns):
 
+  r = pd.Series(returns).dropna()
+
+  if len(r)<2:
+    return np.nan
+  
+  monthly_vol = r.std(ddof=1)
+  annual_vol = monthly_vol * np.sqrt(12)
+
+  return annual_vol
+
+
+# Calculate Sortino Ratio
+def calc_sortino(returns, annual_rf, target_return=0):
+  
+  r = pd.Series(returns).dropna()
+  
+  if len(r) < 2:
+    return np.nan
+  
+  # Convert annual risk-free rate to monthly
+  rf_monthly = (1 + annual_rf)**(1/12) - 1
+  
+  # Calculate excess returns
+  excess_returns = r - rf_monthly
+  
+  downside_returns = excess_returns[excess_returns < target_return]
+  
+  if len(downside_returns) < 2:
+    return np.nan
+  
+  # Calculate downside deviation annualized
+  downside_deviation = downside_returns.std(ddof=1) * np.sqrt(12)
+  
+  if downside_deviation == 0 or np.isnan(downside_deviation):
+    return np.nan
+  
+
+  mean_excess_return = excess_returns.mean() * 12  # Annualized
+  sortino = mean_excess_return / downside_deviation
+  
+  return sortino
 
 
 
