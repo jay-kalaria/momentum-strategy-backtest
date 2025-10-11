@@ -32,26 +32,24 @@ st.write("Select parameters and see portfolio returns")
 with st.sidebar.expander("General Parameters", expanded=True):
 
   # Stock and benchmark selection
-  tickers = st.text_input("Ticker (comma seperated)", "AAPL,MSFT,AMZN").strip().upper()
-
-  benchmark_ticker=  st.text_input("Benchmark Ticker").strip().upper()
-
+  tickers = st.text_input("Ticker (comma seperated)", "AAPL,MSFT,AMZN", placeholder="AAPL,MSFT,AMZN").strip().upper()
+  benchmark_ticker=  st.text_input("Benchmark Ticker", placeholder="SPY").strip().upper()
 
   # Time Period
   start_invest = st.date_input("Starting date", value = pd.to_datetime("2022-01-01"))
   end_invest = st.date_input("Ending date", value = pd.to_datetime("2023-01-01"))
 
-
-
 with st.sidebar.expander("General Parameters", expanded=True):  
   # Lookback and skip input
-  lookback_months= st.number_input("Lookback months", min_value=1 , max_value=24, value=6)
-  skip_months = st.number_input("Skip Months", min_value=0 , max_value=6, value=1)
+  lookback_months= st.number_input("Lookback months", min_value=1 , max_value=24, value=6, 
+                                  help="Number of months to look back for momentum calculation")
+  skip_months = st.number_input("Skip Months", min_value=0 , max_value=6, value=1,
+                               help="Number of months to skip between lookback period and investment")
   start_capital = st.number_input("Start Capital", min_value=100 , value=100 )
 
   # Implement 
   top_n = st.number_input("Top N Stocks", min_value=1 ,max_value=len(tickers), value=3 )
-  stoploss = st.number_input("Stop loss (%) ", min_value=0 , value=50 )
+  stop_loss = st.number_input("Stop loss (%) ", min_value=0 , value=50 )
 
 
 with st.sidebar:
@@ -66,7 +64,7 @@ if reset:
 
 if run:
   with st.spinner("Running backtest...This may take a few moments"):
-    trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns, portfolio_value, benchmark_value, max_drawdown, max_drawdown_ben, total_trades, wins = walk_forward(start_invest, end_invest, lookback_months, skip_months, start_capital)
+    trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns, portfolio_value, benchmark_value, max_drawdown, max_drawdown_ben, total_trades, wins, not_found, not_found_ben  = walk_forward(tickers,benchmark_ticker,start_invest, end_invest, lookback_months, skip_months, start_capital, stop_loss)
 
     sharpe  = calc_sharpe(str_mon_returns, 0.04)
     cagr = calc_cagr(start_capital, capital, str_mon_returns, start_invest, end_invest)
@@ -76,7 +74,10 @@ if run:
 
   total_returns = (((capital-start_capital)/start_capital)*100).round(2)
 
-  
+  if not_found:
+    st.error(f"The following tickers could not be found: {not_found}. Please verify the ticker symbols or note that data might be unavailable for the selected period.")
+  if not_found_ben:
+    st.error(f"The following benchmark ticker could not be found: {not_found_ben}. Please verify the ticker symbol or note that data might be unavailable for the selected period.")
  # st.success("Backtest completed!")
 
   tab1,tab2,tab3 = st.tabs(["Result and Comparsion","Monthly Performace","Detailed Analysis"])
@@ -90,7 +91,30 @@ if run:
 
 
   with tab2:
-    st.dataframe(trade_records)
+    st.subheader("Trade Records")
+    
+    # Convert to DataFrame and handle any data issues
+    try:
+      df_trades = pd.DataFrame(trade_records)
+      
+      # Separate individual trades from summary rows
+      individual_trades = df_trades[df_trades['ticker'] != 'SUMMARY'].copy()
+      summary_rows = df_trades[df_trades['ticker'] == 'SUMMARY'].copy()
+      
+      if not individual_trades.empty:
+        st.write(f"**Individual Trades ({len(individual_trades)} total)**")
+        st.dataframe(individual_trades, width="stretch")
+        
+        if not summary_rows.empty:
+          st.write("**Summary Rows**")
+          st.dataframe(summary_rows, width="stretch")
+        else:
+          st.dataframe(df_trades, width="stretch")
+        
+    except Exception as e:
+      st.error(f"Error displaying trade records: {str(e)}")
+      st.write("Raw trade records:")
+      st.write(trade_records)
 
 
   with tab1:
