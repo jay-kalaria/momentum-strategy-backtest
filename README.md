@@ -1,209 +1,102 @@
 # Momentum Market Strategy Backtester
 
-A comprehensive momentum-based trading strategy backtesting system with optimization capabilities, built with Streamlit and powered by Optuna for hyperparameter optimization.
+A momentum-based trading strategy backtesting system that selects top-performing stocks based on historical price momentum and evaluates performance against market benchmarks.
 
-## 🚀 Features
+## What It Does
 
--   **Momentum Strategy Implementation**: Implements a time-series momentum strategy that selects top-performing stocks based on historical performance
--   **Interactive Web Interface**: User-friendly Streamlit dashboard for strategy configuration and results visualization
--   **Comprehensive Backtesting**: Walk-forward analysis with detailed performance metrics
--   **Hyperparameter Optimization**: Automated parameter tuning using Optuna for optimal strategy performance
--   **Risk Management**: Built-in stop-loss functionality and risk-adjusted performance metrics
--   **Benchmark Comparison**: Compare strategy performance against market benchmarks (e.g., S&P 500)
+This tool implements a **time-series momentum strategy** that:
 
-## 📊 Strategy Overview
+1. **Analyzes Historical Performance**: Looks back over a specified period (1-24 months) to identify stocks with strong momentum
+2. **Selects Top Performers**: Chooses the top N stocks based on price appreciation during the lookback period
+3. **Builds Portfolio**: Creates an equally-weighted portfolio of selected stocks
+4. **Manages Risk**: Implements stop-loss protection to limit downside risk
+5. **Rebalances Monthly**: Updates portfolio holdings each month based on updated momentum signals
+6. **Compares to Benchmark**: Evaluates strategy performance against market benchmarks (e.g., S&P 500)
 
-The momentum strategy works as follows:
+## Analysis & Metrics
 
-1. **Lookback Period**: Analyzes stock performance over a specified lookback period (1-24 months)
-2. **Skip Period**: Skips a specified number of months between the lookback period and investment decision
-3. **Stock Selection**: Selects the top N performing stocks based on price momentum
-4. **Portfolio Construction**: Creates an equally-weighted portfolio of selected stocks
-5. **Risk Management**: Implements stop-loss protection to limit downside risk
-6. **Rebalancing**: Rebalances the portfolio monthly based on updated momentum signals
+The backtester provides comprehensive performance analysis across multiple dimensions:
 
-## 🛠️ Installation
+### Return Metrics
+
+-   **Total Return**
+-   **CAGR (Compound Annual Growth Rate)**
+-   **Monthly Returns**
+
+### Risk-Adjusted Metrics
+
+-   **Sharpe Ratio**
+-   **Sortino Ratio**
+-   **Volatility**
+-   **Maximum Drawdown**
+
+### Trading Performance Metrics
+
+-   **Win Rate**
+-   **Total Trades**
+
+### Benchmark Comparison
+
+All metrics are calculated for both the strategy and benchmark, allowing direct comparison to assess whether the strategy adds value over passive market exposure.
+
+### Visualizations
+
+-   **Portfolio Value Chart**
+-   **Trade Records**
+
+## Setup
 
 ### Prerequisites
 
 -   Python 3.7+
--   pip package manager
+-   pip
 
-### Setup
+### Installation
 
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/jay-kalaria/momentum-strategy-backtest
 cd momentum-market
 ```
 
-2. Install required dependencies:
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the Streamlit application:
+3. Run the application:
 
 ```bash
 streamlit run app.py
 ```
 
-## 📁 Project Structure
+## Usage
 
-```
-momentum-market/
-├── app.py                 # Main Streamlit application
-├── core/
-│   ├── backtester.py     # Core backtesting engine
-│   └── helper.py         # Utility functions and calculations
-├── optimizer.ipynb       # Optuna optimization notebook
-├── algo.ipynb           # Algorithm development notebook
-├── test.ipynb           # Testing and validation notebook
-├── us100.py             # US100 stock universe definition
-├── cached_data/         # Cached market data
-│   ├── all_data.pkl
-│   └── benchmark_data.pkl
-└── requirements.txt     # Python dependencies
-```
+1. **Configure Parameters** in the sidebar:
 
-## 🎯 Usage
+    - **Tickers**: Comma-separated stock symbols (e.g., `AAPL,MSFT,AMZN`)
+    - **Benchmark**: Benchmark ticker (e.g., `SPY`)
+    - **Time Period**: Start and end dates for backtesting
+    - **Lookback Months**: Historical period for momentum calculation (1-24 months)
+    - **Skip Months**: Gap between lookback period and investment (0-6 months)
+    - **Top N Stocks**: Number of stocks to select for portfolio
+    - **Stop Loss**: Maximum loss percentage per trade (0-50%)
 
-### Web Interface
+2. **Run Strategy**: Click "Run Strategy" to execute the backtest
 
-1. Launch the application:
+3. **Review Results**: View performance metrics, charts, and trade records in the results tab
 
-```bash
-streamlit run app.py
-```
+## Strategy Parameters
 
-2. Configure strategy parameters in the sidebar:
-
-    - **Tickers**: Enter comma-separated stock symbols
-    - **Benchmark**: Specify benchmark ticker (e.g., SPY)
-    - **Time Period**: Set start and end dates
-    - **Lookback Months**: Historical period for momentum calculation
-    - **Skip Months**: Gap between lookback and investment
-    - **Top N Stocks**: Number of stocks to select
-    - **Stop Loss**: Maximum loss percentage per trade
-
-3. Click "Run Strategy" to execute the backtest
-
-4. View results across three tabs:
-    - **Results and Comparison**: Performance metrics and charts
-    - **Monthly Performance**: Detailed trade records
-    - **Detailed Analysis**: Comprehensive risk and return analysis
-
-### Optimization
-
-Use the Jupyter notebook for hyperparameter optimization:
-
-```python
-# Open optimizer.ipynb
-# Configure optimization parameters
-# Run optimization trials
-```
-
-## 📈 Performance Metrics
-
-The system calculates comprehensive performance metrics:
-
-### Return Metrics
-
--   **Total Return**: Overall portfolio performance
--   **CAGR**: Compound Annual Growth Rate
--   **Monthly Returns**: Time series of monthly returns
-
-### Risk Metrics
-
--   **Sharpe Ratio**: Risk-adjusted returns
--   **Sortino Ratio**: Downside risk-adjusted returns
--   **Volatility**: Annualized return volatility
--   **Maximum Drawdown**: Largest peak-to-trough decline
-
-### Trading Metrics
-
--   **Win Rate**: Percentage of profitable trades
--   **Total Trades**: Number of executed trades
--   **Trade Records**: Detailed transaction history
-
-## 🔧 Configuration
-
-### Strategy Parameters
-
-| Parameter         | Description                         | Range | Default |
-| ----------------- | ----------------------------------- | ----- | ------- |
-| `lookback_months` | Historical analysis period          | 1-24  | 6       |
-| `skip_months`     | Gap between analysis and investment | 0-6   | 1       |
-| `top_n`           | Number of stocks to select          | 1-10  | 2       |
-| `stop_loss`       | Maximum loss per trade (%)          | 0-50  | 50      |
-
-### Data Sources
-
--   **Market Data**: Yahoo Finance (via yfinance)
--   **Stock Universe**: Configurable ticker lists
--   **Benchmarks**: Any valid ticker symbol
-
-## 🧪 Optimization
-
-The system includes Optuna-based hyperparameter optimization:
-
-```python
-# Example optimization objective
-def objective(trial):
-    lookback_months = trial.suggest_int("lookback_months", 1, 12)
-    skip_months = trial.suggest_int("skip_months", 0, 6)
-    stop_loss = trial.suggest_float("stop_loss", 0, 0.5)
-
-    # Run backtest and return performance score
-    return performance_score
-```
-
-## 📊 Example Results
-
-The system provides comprehensive performance analysis including:
-
--   Portfolio value progression charts
--   Benchmark comparison
--   Risk-adjusted performance metrics
--   Trade-by-trade analysis
--   Drawdown analysis
-
-## 🔍 Technical Details
-
-### Data Handling
-
--   **Data Source**: Yahoo Finance API
--   **Data Processing**: Forward-fill missing values
--   **Caching**: Optional data caching for faster repeated runs
-
-### Backtesting Engine
-
--   **Method**: Walk-forward analysis
--   **Rebalancing**: Monthly portfolio rebalancing
--   **Transaction Costs**: Not included (can be added)
--   **Slippage**: Not modeled
-
-### Risk Management
-
--   **Stop Loss**: Configurable percentage-based stop loss
--   **Position Sizing**: Equal-weight portfolio construction
--   **Rebalancing**: Monthly rebalancing based on momentum signals
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 🆘 Support
-
-For questions, issues, or contributions, please open an issue on the GitHub repository.
+| Parameter         | Description                                | Range | Default |
+| ----------------- | ------------------------------------------ | ----- | ------- |
+| `lookback_months` | Historical period for momentum calculation | 1-24  | 6       |
+| `skip_months`     | Gap between analysis and investment        | 0-6   | 1       |
+| `top_n`           | Number of stocks to select                 | 1+    | 3       |
+| `stop_loss`       | Maximum loss per trade (%)                 | 0-50  | 50      |
 
 ---
 
-**Note**: This is a backtesting framework and should not be used for live trading without proper testing and risk management procedures.
-
+**Note**: This is a backtesting framework for research and educational purposes. Not intended for live trading without proper testing and risk management.
