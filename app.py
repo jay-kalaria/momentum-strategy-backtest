@@ -4,6 +4,7 @@ import pandas as pd
 from core.backtester import walk_forward
 import datetime
 from stock_ticker_templates import templates
+import plotly.graph_objects as go
 
 st.set_page_config(layout="wide")
 st.title("Momentum Strategy Backtester")
@@ -153,8 +154,15 @@ if run:
 
     (tab1,) = st.tabs(["Result and Comparsion"])
 
+    # Generate monthly date range for x-axis based on portfolio values
+    # Portfolio values are recorded monthly, so create corresponding dates
+    start_date = pd.to_datetime(start_invest)
+    dates = pd.date_range(start=start_date, periods=len(portfolio_value), freq="M")
+
+    # Create DataFrame with dates as index for proper x-axis labeling
     graph_data = pd.DataFrame(
-        {"Momentum Strategy": portfolio_value, "Benchmark": benchmark_value}
+        {"Momentum Strategy": portfolio_value, "Benchmark": benchmark_value},
+        index=dates,
     )
 
     # with tab2:
@@ -194,7 +202,63 @@ if run:
         # st.write(f"**CAGR**: {cagr:.2f}")
         # st.write(f"**Sharpe**: {sharpe:.2f}")
 
-        st.line_chart(graph_data)
+        # Create Plotly chart with better axis formatting
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=graph_data.index,
+                y=graph_data["Momentum Strategy"],
+                mode="lines",
+                name="Momentum Strategy",
+                line=dict(color="#1f77b4", width=2),
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=graph_data.index,
+                y=graph_data["Benchmark"],
+                mode="lines",
+                name="Benchmark",
+                line=dict(color="#ff7f0e", width=2),
+            )
+        )
+
+        # Calculate appropriate tick interval based on data range
+        num_months = len(graph_data)
+        if num_months <= 12:
+            dtick = "M1"
+        elif num_months <= 24:
+            dtick = "M2"
+        else:
+            dtick = "M3"
+        fig.update_xaxes(
+            title_text="Date",
+            tickformat="%b %Y",
+            tickangle=-45,
+            dtick=dtick,
+            showgrid=True,
+        )
+
+        fig.update_yaxes(
+            title_text="Portfolio Value ($)",
+            tickformat="$,.0f",
+            showgrid=True,
+        )
+
+        fig.update_layout(
+            title="Portfolio Performance Over Time",
+            xaxis_title="Date",
+            yaxis_title="Portfolio Value ($)",
+            hovermode="x unified",
+            height=500,
+            legend=dict(
+                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
+            ),
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
 
         # Performance Panel
         st.subheader("Performance Panel")
