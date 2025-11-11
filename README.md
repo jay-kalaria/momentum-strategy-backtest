@@ -1,6 +1,7 @@
 # Momentum Market Strategy Backtester
 
 A momentum-based trading strategy backtesting system that selects top-performing stocks based on historical price momentum and evaluates performance against market benchmarks.
+<img width="1510" height="815" alt="Pasted Graphic 2" src="https://github.com/user-attachments/assets/e0d40f1f-1034-4fbd-9165-3c5d3d447a0e" />
 
 ## What It Does
 
