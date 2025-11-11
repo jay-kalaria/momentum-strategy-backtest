@@ -6,7 +6,7 @@ import datetime
 from stock_ticker_templates import templates
 
 st.set_page_config(layout="wide")
-st.title("Momentum Strategy Backtester with")
+st.title("Momentum Strategy Backtester")
 st.write("Configure your parameters in the sidebar and run the strategy.")
 
 names = templates[0].keys()
@@ -30,7 +30,6 @@ if not st.session_state.results_show:
                 st.session_state.selected_tickers = selected_tickers
                 st.session_state.results_show = True
                 st.rerun()
-  
 
 
 with st.sidebar.expander("General Parameters", expanded=True):
@@ -152,39 +151,37 @@ if run:
         )
     # st.success("Backtest completed!")
 
-    tab1, tab2, tab3 = st.tabs(
-        ["Result and Comparsion", "Monthly Performace", "Detailed Analysis"]
-    )
+    (tab1,) = st.tabs(["Result and Comparsion"])
 
     graph_data = pd.DataFrame(
         {"Momentum Strategy": portfolio_value, "Benchmark": benchmark_value}
     )
 
-    with tab2:
-        st.subheader("Trade Records")
+    # with tab2:
+    #     st.subheader("Trade Records")
 
-        # Convert to DataFrame and handle any data issues
-        try:
-            df_trades = pd.DataFrame(trade_records)
+    #     # Convert to DataFrame and handle any data issues
+    #     try:
+    #         df_trades = pd.DataFrame(trade_records)
 
-            # Separate individual trades from summary rows
-            individual_trades = df_trades[df_trades["ticker"] != "SUMMARY"].copy()
-            summary_rows = df_trades[df_trades["ticker"] == "SUMMARY"].copy()
+    #         # Separate individual trades from summary rows
+    #         individual_trades = df_trades[df_trades["ticker"] != "SUMMARY"].copy()
+    #         summary_rows = df_trades[df_trades["ticker"] == "SUMMARY"].copy()
 
-            if not individual_trades.empty:
-                st.write(f"**Individual Trades ({len(individual_trades)} total)**")
-                st.dataframe(individual_trades, width="stretch")
+    #         if not individual_trades.empty:
+    #             st.write(f"**Individual Trades ({len(individual_trades)} total)**")
+    #             st.dataframe(individual_trades, width="stretch")
 
-                if not summary_rows.empty:
-                    st.write("**Summary Rows**")
-                    st.dataframe(summary_rows, width="stretch")
-                else:
-                    st.dataframe(df_trades, width="stretch")
+    #             if not summary_rows.empty:
+    #                 st.write("**Summary Rows**")
+    #                 st.dataframe(summary_rows, width="stretch")
+    #             else:
+    #                 st.dataframe(df_trades, width="stretch")
 
-        except Exception as e:
-            st.error(f"Error displaying trade records: {str(e)}")
-            st.write("Raw trade records:")
-            st.write(trade_records)
+    #     except Exception as e:
+    #         st.error(f"Error displaying trade records: {str(e)}")
+    #         st.write("Raw trade records:")
+    #         st.write(trade_records)
 
     with tab1:
         # st.header("Results")

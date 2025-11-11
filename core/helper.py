@@ -18,7 +18,8 @@ def fetch_data(tickers, start_invest, end_invest, look_back, skip_months):
         ticker.strip().upper() for ticker in tickers.split(",") if ticker.strip()
     ]
 
-    start_offset_months = look_back + 2 + skip_months
+
+    start_offset_months = look_back + 2 + skip_months + 60 
     start_invest = pd.to_datetime(start_invest) - pd.DateOffset(
         months=start_offset_months
     )
@@ -37,13 +38,12 @@ def fetch_data(tickers, start_invest, end_invest, look_back, skip_months):
         end=end_invest,
         group_by="ticker",
         auto_adjust=False,
+        progress=False,
     )
 
     adj_close_dict = {}
 
     not_found = []
-
-    print(raw_data.columns.levels[0])
 
     for ticker in tickers:
       if hasattr(raw_data.columns, "levels"):
@@ -65,8 +65,6 @@ def fetch_data(tickers, start_invest, end_invest, look_back, skip_months):
           
 
     data = pd.DataFrame(adj_close_dict)
-
-    
 
     final_data = data.ffill().bfill().round(2)
     
