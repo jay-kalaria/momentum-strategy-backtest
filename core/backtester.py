@@ -1,7 +1,7 @@
 import pandas as pd
 from core.helper import on_or_before_date, cal_start_end, get_stock_price, fetch_data
 
-ben_data= pd.read_pickle('cached_data/benchmark_data.pkl')
+
 
 def walk_forward(tickers,benchmark_ticker, start_invest, end_invest, lookback_months, skip_months, start_capital, stop_loss):
   
@@ -86,7 +86,7 @@ def walk_forward(tickers,benchmark_ticker, start_invest, end_invest, lookback_mo
     #Update the capital
     capital *= (1+portfolio_return)
 
-    print(ben_data)
+    
     # benchmark capital
     ben_capital_before = ben_capital
     ben_return = (ben_data.loc[sell_date,benchmark_ticker] - ben_data.loc[buy_date,benchmark_ticker])/ben_data.loc[buy_date,benchmark_ticker]
@@ -121,7 +121,6 @@ def walk_forward(tickers,benchmark_ticker, start_invest, end_invest, lookback_mo
     # Max drawdown
     if capital > peak_capital:
       peak_capital = capital
-    
     # Calculate current drawdown as percentage from peak
     current_drawdown = (peak_capital - capital) / peak_capital
     max_drawdown = max(max_drawdown, current_drawdown)
@@ -129,13 +128,10 @@ def walk_forward(tickers,benchmark_ticker, start_invest, end_invest, lookback_mo
     # Drawdown benchmark
     if ben_capital>peak_capital_ben:
       peak_capital_ben=ben_capital
-    
-    current_dd_ben = (peak_capital_ben-capital)/peak_capital_ben
+    current_dd_ben = (peak_capital_ben-ben_capital)/peak_capital_ben
     max_drawdown_ben  = max(max_drawdown_ben, current_dd_ben)
 
     #Date update for loop
     start_invest = (buy_date + pd.DateOffset(months=1)).replace(day=1)
 
   return trade_records, capital, ben_capital, str_mon_returns, ben_mon_returns, portfolio_value, benchmark_value, max_drawdown, max_drawdown_ben, total_trades, wins, not_found, not_found_ben
-
-
